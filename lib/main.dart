@@ -1,5 +1,9 @@
 // Written by Jordan Gamache © December, 2020
+import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinning_wheel/flutter_spinning_wheel.dart';
+import 'Labels.dart';
 import 'history.dart';
 
 void main() {
@@ -21,27 +25,29 @@ class MyApp extends StatelessWidget {
               image: DecorationImage(
                   image: AssetImage("assets/background.png"),
                   fit: BoxFit.cover)),
-          child: MyHomePage()),
+          child: Rotary()),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
+class Rotary extends StatefulWidget {
+  Rotary({Key key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _RotaryState createState() => _RotaryState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _RotaryState extends State<Rotary> {
   // Initialize empty string variables
   String _selection = "", display = "", results = "";
+  int counter = 0; // Counter to determine if number of results have changed
 
   // --------------------------- Class Variables --------------------------- //
 
   // Computational algorithm -- check each digit in selection and test for all potential expressions to equal target (24)
   void check(
       double sum, double previous, String digits, double target, String expr) {
+    counter = results.length; // Set counter to current length of results
     // stop if EOL
     if (digits.length == 0) {
       // If the current number being tested (sum) + the last number equals the target number, add the expression to results
@@ -70,9 +76,16 @@ class _MyHomePageState extends State<MyHomePage> {
             expr + " - " + current.toString());
       }
     }
+
+    if (counter != results.length) {
+      print("green bubbles");
+    } else {
+      print("red bubbles");
+    }
   }
 
   _checkList(String selection, double target) {
+    print("Current selection: $selection");
     // Pass selection to local variable and call setState to reload Scaffold
     setState(() {
       _selection = selection;
@@ -89,6 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
            */
           check(0.0, double.parse(pos), selection.substring(0, i), target, pos);
         });
+        _displaySelection();
       }
 
       // After algorithm has been processed, clear the storage variable and reload scaffold
@@ -104,33 +118,128 @@ class _MyHomePageState extends State<MyHomePage> {
   // ignore: missing_return
   List<Widget> _displaySelection() {
     List<Widget> result = [];
-    if (results != " ") {
-      result.add(Text(
-        results,
-        style: TextStyle(color: Colors.white, fontSize: 24),
-      ));
+    if (results.isNotEmpty) {
       /* In theory, the following code would be used to return the UI-specific results (red if wrong and colorful if correct) */
-      // for (int i = 0; i < results.length; i++) {
-      // if (results[i] != " ") {
-      //   display += results[i];
-      //   result.add(Container(
-      //     child: Text(
-      //       results[i],
-      //       style: TextStyle(color: Colors.white, fontSize: 20),
-      //     ),
-      //     decoration:
-      //         BoxDecoration(color: Colors.black, shape: BoxShape.circle),
-      //     width: 20,
-      //     alignment: Alignment.center,
-      //   ));
-      // }
-      // if (results[i] == "*" ||
-      //     results[i] == "+" ||
-      //     results[i] == "-" ||
-      //     results[i] == "/") {}
-      // }
+      for (int i = 0; i < results.length; i++) {
+        if (results[i] != " ") {
+          var str = results[i].split('.');
+          str[0].runes.forEach((element) {
+            if (String.fromCharCode(element) != "0")
+              display += new String.fromCharCode(element);
+          });
+        }
+      }
+      result.add(Row(children: [
+        Container(
+            width: 50,
+            height: 50,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: Colors.black54,
+                  blurRadius: 15.0,
+                  offset: Offset(0.0, 0.75))
+            ], shape: BoxShape.circle, color: Color.fromRGBO(125, 202, 160, 1)),
+            child: Text(
+              (display != null) ? display[0] : "null",
+              style: TextStyle(color: Colors.white, fontSize: 32),
+            )),
+        Text(
+          display[1],
+          style: TextStyle(color: Colors.white, fontSize: 32),
+        ),
+        Container(
+            width: 50,
+            height: 50,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: Colors.black54,
+                  blurRadius: 15.0,
+                  offset: Offset(0.0, 0.75))
+            ], shape: BoxShape.circle, color: Color.fromRGBO(125, 202, 160, 1)),
+            child: Text(
+              display[2],
+              style: TextStyle(color: Colors.white, fontSize: 32),
+            )),
+        Text(
+          display[3],
+          style: TextStyle(color: Colors.white, fontSize: 32),
+        ),
+        Container(
+            width: 50,
+            height: 50,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: Colors.black54,
+                  blurRadius: 15.0,
+                  offset: Offset(0.0, 0.75))
+            ], shape: BoxShape.circle, color: Color.fromRGBO(96, 136, 175, 1)),
+            child: Text(display[4],
+                style: TextStyle(color: Colors.white, fontSize: 32))),
+        Text(
+          display[5],
+          style: TextStyle(color: Colors.white, fontSize: 32),
+        ),
+        Container(
+            width: 50,
+            height: 50,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: Colors.black54,
+                  blurRadius: 15.0,
+                  offset: Offset(0.0, 0.75))
+            ], shape: BoxShape.circle, color: Color.fromRGBO(96, 136, 175, 1)),
+            child: Text(display[6],
+                style: TextStyle(color: Colors.white, fontSize: 32))),
+        Text(
+          display[7],
+          style: TextStyle(color: Colors.white, fontSize: 32),
+        ),
+        Container(
+            width: 50,
+            height: 50,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: Colors.black54,
+                  blurRadius: 15.0,
+                  offset: Offset(0.0, 0.75))
+            ], shape: BoxShape.circle, color: Color.fromRGBO(96, 136, 175, 1)),
+            child:
+                Text("24", style: TextStyle(color: Colors.white, fontSize: 32)))
+      ]));
       return result;
     }
+  }
+
+  final StreamController _dividerController = StreamController<int>();
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _dividerController.close();
+    print("Divider Stream Controller closed");
+  }
+
+  int labels(dynamic selection) {
+    Map<int, int> numbers = {
+      1: 8,
+      2: 9,
+      3: 0,
+      4: 1,
+      5: 2,
+      6: 3,
+      7: 4,
+      8: 5,
+      9: 6,
+      10: 7
+    };
+
+    return numbers[selection];
   }
 
   // ----------------------------- Widget Tree ----------------------------- //
@@ -138,10 +247,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     // Construct rotary geometry
     Widget rotary = new Container(
-      width: 300.0,
-      height: 300.0,
-      decoration:
-          new BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+      width: 350.0,
+      height: 350.0,
+      decoration: new BoxDecoration(
+          color: Color.fromRGBO(42, 61, 81, 1), shape: BoxShape.circle),
     );
 
     return Scaffold(
@@ -159,7 +268,8 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 setState(() {
                   _selection = "";
-                  results = ""; // Also clear displayed results!
+                  results = "";
+                  display = ""; // Also clear displayed results!
                   print(_selection);
                 });
               },
@@ -179,7 +289,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   // Open history page and pass the results variable
                   Navigator.of(context)
                       .push(MaterialPageRoute(builder: (context) {
-                    return History(results);
+                    return History(_displaySelection());
                   }));
                 },
               ),
@@ -191,159 +301,56 @@ class _MyHomePageState extends State<MyHomePage> {
             alignment: Alignment.topCenter,
             children: <Widget>[
               // Draw rotary image and place numbers appropriately
-              Positioned(child: rotary, top: 20),
+              Align(
+                child: rotary,
+                alignment: Alignment.topCenter,
+              ),
+              Labels(),
               Positioned(
-                top: 70,
-                left: 250,
-                child: FloatingActionButton(
-                  child: Text("1"),
-                  elevation: 0,
-                  backgroundColor: Color.fromRGBO(42, 61, 81, 1),
-                  heroTag: null,
-                  onPressed: () => {
-                    _selection += "1",
-                    _checkList(_selection, 24),
-                    print(_selection)
-                  },
+                top: 35,
+                left: 25,
+                child: Transform(
+                  // angle: 90,
+                  alignment: Alignment.center,
+                  transform: Matrix4.rotationY(3),
+                  child: SpinningWheel(
+                    Image.asset("assets/rotaryWheel.png"),
+                    width: 300,
+                    height: 300,
+                    dividers: 10,
+                    initialSpinAngle: 0,
+                    spinResistance: 0.8,
+                    onEnd: _dividerController.add,
+                    onUpdate: _dividerController.add,
+                  ),
                 ),
               ),
               Positioned(
-                top: 32,
-                left: 195,
-                child: FloatingActionButton(
-                  child: Text("2"),
-                  elevation: 0,
-                  backgroundColor: Color.fromRGBO(42, 61, 81, 1),
-                  heroTag: null,
-                  onPressed: () => {
-                    _selection += "2",
-                    _checkList(_selection, 24),
-                    print(_selection)
-                  },
-                ),
-              ),
+                  top: 365,
+                  child: StreamBuilder(
+                    stream: _dividerController.stream,
+                    builder: (context, snapshot) => snapshot.hasData
+                        ? MaterialButton(
+                            child: Text("${labels(snapshot.data)}",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 32)),
+                            onPressed: () => {
+                                  _selection +=
+                                      labels(snapshot.data).toString(),
+                                  _checkList(_selection, 24)
+                                })
+                        : Container(),
+                  )),
               Positioned(
-                top: 25,
-                left: 130,
-                child: FloatingActionButton(
-                  child: Text("3"),
-                  elevation: 0,
-                  backgroundColor: Color.fromRGBO(42, 61, 81, 1),
-                  heroTag: null,
-                  onPressed: () => {
-                    _selection += "3",
-                    _checkList(_selection, 24),
-                    print(_selection)
-                  },
-                ),
-              ),
-              Positioned(
-                top: 60,
-                left: 80,
-                child: FloatingActionButton(
-                  child: Text("4"),
-                  elevation: 0,
-                  backgroundColor: Color.fromRGBO(42, 61, 81, 1),
-                  heroTag: null,
-                  onPressed: () => {
-                    _selection += "4",
-                    _checkList(_selection, 24),
-                    print(_selection)
-                  },
-                ),
-              ),
-              Positioned(
-                top: 110,
-                left: 45,
-                child: FloatingActionButton(
-                  child: Text("5"),
-                  elevation: 0,
-                  backgroundColor: Color.fromRGBO(42, 61, 81, 1),
-                  heroTag: null,
-                  onPressed: () => {
-                    _selection += "5",
-                    _checkList(_selection, 24),
-                    print(_selection)
-                  },
-                ),
-              ),
-              Positioned(
-                top: 170,
-                left: 45,
-                child: FloatingActionButton(
-                  child: Text("6"),
-                  elevation: 0,
-                  backgroundColor: Color.fromRGBO(42, 61, 81, 1),
-                  heroTag: null,
-                  onPressed: () => {
-                    _selection += "6",
-                    _checkList(_selection, 24),
-                    print(_selection)
-                  },
-                ),
-              ),
-              Positioned(
-                top: 220,
-                left: 75,
-                child: FloatingActionButton(
-                  child: Text("7"),
-                  elevation: 0,
-                  backgroundColor: Color.fromRGBO(42, 61, 81, 1),
-                  heroTag: null,
-                  onPressed: () => {
-                    _selection += "7",
-                    _checkList(_selection, 24),
-                    print(_selection)
-                  },
-                ),
-              ),
-              Positioned(
-                top: 255,
-                left: 125,
-                child: FloatingActionButton(
-                  child: Text("8"),
-                  elevation: 0,
-                  backgroundColor: Color.fromRGBO(42, 61, 81, 1),
-                  heroTag: null,
-                  onPressed: () => {
-                    _selection += "8",
-                    _checkList(_selection, 24),
-                    print(_selection)
-                  },
-                ),
-              ),
-              Positioned(
-                top: 255,
-                left: 190,
-                child: FloatingActionButton(
-                  child: Text("9"),
-                  elevation: 0,
-                  backgroundColor: Color.fromRGBO(42, 61, 81, 1),
-                  heroTag: null,
-                  onPressed: () => {
-                    _selection += "9",
-                    _checkList(_selection, 24),
-                    print(_selection)
-                  },
-                ),
-              ),
-              Positioned(
-                top: 220,
-                left: 240,
-                child: FloatingActionButton(
-                    child: Text("0"),
-                    elevation: 0,
-                    backgroundColor: Color.fromRGBO(42, 61, 81, 1),
-                    heroTag: null,
-                    onPressed: () => {
-                          _selection += "0",
-                          _checkList(_selection, 24),
-                          print(_selection)
-                        }),
-              ),
-              Positioned(
-                  top: 400,
-                  child: Row(children: _displaySelection() ?? [Container()])),
+                top: 500,
+                child: (display.isNotEmpty)
+                    ? Row(
+                        children: (_displaySelection() != null)
+                            ? _displaySelection()
+                            : [Container()],
+                      )
+                    : Container(),
+              )
             ],
           ),
         ));
