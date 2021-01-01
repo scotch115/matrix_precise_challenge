@@ -1,12 +1,10 @@
 // Written by Jordan Gamache © December, 2020
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'main.dart';
 
 class History extends StatefulWidget {
-  final List<Widget> inputResults;
-  History(this.inputResults);
-
   @override
   @override
   _HistoryState createState() => _HistoryState();
@@ -14,6 +12,7 @@ class History extends StatefulWidget {
 
 class _HistoryState extends State<History> {
   List<Widget> results = [];
+  final databaseReference = Firestore.instance;
 
   // --------------------------- Class Variables --------------------------- //
 
@@ -21,7 +20,16 @@ class _HistoryState extends State<History> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    results = widget.inputResults;
+  }
+
+  void getData() {
+    databaseReference
+        .collection('rotarySelection')
+        .getDocuments()
+        .then((QuerySnapshot snapshot) {
+      snapshot.documents.forEach((element) => print(
+          '${element.data}')); // Once Firestore is properly configured, this will be updated to generate a WidgetList based on Firestore document data
+    });
   }
 
   // ----------------------------- Widget Tree ----------------------------- //
@@ -56,15 +64,12 @@ class _HistoryState extends State<History> {
               ),
               backgroundColor: Colors.transparent,
               body: Container(
-                // Draw background image
-                // decoration: BoxDecoration(
-                //     image: DecorationImage(
-                //         image: AssetImage("assets/background.png"), fit: BoxFit.cover)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Display history in chronological order
+                    // Need to implement calls to Firestore, and method to filter passing and failing expressions to properly display each
                     Center(
                         child: Text(
                       "History",
@@ -74,11 +79,11 @@ class _HistoryState extends State<History> {
                           color: Colors.white),
                     )),
                     Column(
-                      children: (widget.inputResults != null)
-                          ? widget.inputResults
-                          : [Container()],
-                      // style: TextStyle(color: Colors.white, fontSize: 20),
-                    )
+                        // children: (widget.inputResults != null)
+                        //     ? widget.inputResults
+                        //     : [Container()],
+                        // style: TextStyle(color: Colors.white, fontSize: 20),
+                        )
                   ],
                 ),
               ),

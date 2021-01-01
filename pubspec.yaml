@@ -23,7 +23,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_spinning_wheel: ^1.1.0
+  firebase_core: ^0.4.0+9
+  cloud_firestore: ^0.12.9+5
 
 
 

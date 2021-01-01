@@ -1,10 +1,10 @@
 // Written by Jordan Gamache © December, 2020
-import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinning_wheel/flutter_spinning_wheel.dart';
 import 'Labels.dart';
+import 'StopPosition.dart';
 import 'history.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
   runApp(MyApp());
@@ -38,16 +38,30 @@ class Rotary extends StatefulWidget {
 }
 
 class _RotaryState extends State<Rotary> {
-  // Initialize empty string variables
-  String _selection = "", display = "", results = "";
-  int counter = 0; // Counter to determine if number of results have changed
+  final databaseReference = Firestore.instance;
 
-  // --------------------------- Class Variables --------------------------- //
+  // Initialize empty string variables
+  String _selection = "",
+      display = "",
+      results = "",
+      incorrect = "",
+      _operator = "",
+      _history = "";
+  int counter = 0; // Counter to determine if number of results have changed
+  double radius = 130;
+  double _movement = 0;
+  double _rotationAngle = 0.2;
+
+  double radians(double angle) {
+    return angle * pi / 180;
+  }
+
+  // --------------------------- Class Methods --------------------------- //
 
   // Computational algorithm -- check each digit in selection and test for all potential expressions to equal target (24)
   void check(
       double sum, double previous, String digits, double target, String expr) {
-    counter = results.length; // Set counter to current length of results
+    counter = incorrect.length; // Set counter to current length of results
     // stop if EOL
     if (digits.length == 0) {
       // If the current number being tested (sum) + the last number equals the target number, add the expression to results
@@ -57,9 +71,17 @@ class _RotaryState extends State<Rotary> {
         if (!expr.contains("24")) {
           // Only save one version (duplicates due to associative property sometimes occur)
           if (!results.contains("$expr = $target \n")) {
-            results += "$expr = $target \n";
+            var test = "$expr = $target \n";
+            if (test.length >
+                20) // Filter any expressions that only use 3 of the given 4 digits
+            {
+              results += "$expr = $target \n";
+            }
           }
         }
+      } else {
+        incorrect += "$expr\n";
+        // print(incorrect);
       }
     } else {
       // Recursively traverse the selection of 4 digits and check using all operators if the available digits can equal 24
@@ -77,7 +99,7 @@ class _RotaryState extends State<Rotary> {
       }
     }
 
-    if (counter != results.length) {
+    if (counter == incorrect.length) {
       print("green bubbles");
     } else {
       print("red bubbles");
@@ -85,7 +107,7 @@ class _RotaryState extends State<Rotary> {
   }
 
   _checkList(String selection, double target) {
-    print("Current selection: $selection");
+    print("Current selection: $selection \n");
     // Pass selection to local variable and call setState to reload Scaffold
     setState(() {
       _selection = selection;
@@ -108,7 +130,6 @@ class _RotaryState extends State<Rotary> {
       // After algorithm has been processed, clear the storage variable and reload scaffold
       setState(() {
         _selection = "";
-        print(_selection);
       });
     } else {
       return;
@@ -118,14 +139,25 @@ class _RotaryState extends State<Rotary> {
   // ignore: missing_return
   List<Widget> _displaySelection() {
     List<Widget> result = [];
+    List<Widget> _incorrect = [];
+    String selection = _selection;
+
     if (results.isNotEmpty) {
       /* In theory, the following code would be used to return the UI-specific results (red if wrong and colorful if correct) */
       for (int i = 0; i < results.length; i++) {
         if (results[i] != " ") {
           var str = results[i].split('.');
           str[0].runes.forEach((element) {
-            if (String.fromCharCode(element) != "0")
-              display += new String.fromCharCode(element);
+            if (String.fromCharCode(element) != "0") {
+              if (String.fromCharCode(element) == "*" ||
+                  String.fromCharCode(element) == "/" ||
+                  String.fromCharCode(element) == "+" ||
+                  String.fromCharCode(element) == "-") {
+                _operator += new String.fromCharCode(element);
+              } else {
+                display += new String.fromCharCode(element);
+              }
+            }
           });
         }
       }
@@ -145,7 +177,7 @@ class _RotaryState extends State<Rotary> {
               style: TextStyle(color: Colors.white, fontSize: 32),
             )),
         Text(
-          display[1],
+          _operator[0],
           style: TextStyle(color: Colors.white, fontSize: 32),
         ),
         Container(
@@ -159,11 +191,11 @@ class _RotaryState extends State<Rotary> {
                   offset: Offset(0.0, 0.75))
             ], shape: BoxShape.circle, color: Color.fromRGBO(125, 202, 160, 1)),
             child: Text(
-              display[2],
+              display[1],
               style: TextStyle(color: Colors.white, fontSize: 32),
             )),
         Text(
-          display[3],
+          _operator[1],
           style: TextStyle(color: Colors.white, fontSize: 32),
         ),
         Container(
@@ -176,10 +208,10 @@ class _RotaryState extends State<Rotary> {
                   blurRadius: 15.0,
                   offset: Offset(0.0, 0.75))
             ], shape: BoxShape.circle, color: Color.fromRGBO(96, 136, 175, 1)),
-            child: Text(display[4],
+            child: Text(display[2],
                 style: TextStyle(color: Colors.white, fontSize: 32))),
         Text(
-          display[5],
+          _operator[2],
           style: TextStyle(color: Colors.white, fontSize: 32),
         ),
         Container(
@@ -192,10 +224,10 @@ class _RotaryState extends State<Rotary> {
                   blurRadius: 15.0,
                   offset: Offset(0.0, 0.75))
             ], shape: BoxShape.circle, color: Color.fromRGBO(96, 136, 175, 1)),
-            child: Text(display[6],
+            child: Text(display[3],
                 style: TextStyle(color: Colors.white, fontSize: 32))),
         Text(
-          display[7],
+          "=",
           style: TextStyle(color: Colors.white, fontSize: 32),
         ),
         Container(
@@ -211,35 +243,143 @@ class _RotaryState extends State<Rotary> {
             child:
                 Text("24", style: TextStyle(color: Colors.white, fontSize: 32)))
       ]));
+      databaseReference.collection('rotarySelection').document().setData({
+        'expression':
+            '${display[0]} ${_operator[0]} ${display[1]} ${_operator[1]} ${display[2]} ${_operator[2]} ${display[3]} = 24'
+      });
       return result;
+    } else if (_incorrect.isNotEmpty) {
+      _incorrect.add(Row(children: [
+        Container(
+            width: 50,
+            height: 50,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: Colors.black54,
+                  blurRadius: 15.0,
+                  offset: Offset(0.0, 0.75))
+            ], shape: BoxShape.circle, color: Colors.red),
+            child: Text(
+              selection[0],
+              style: TextStyle(color: Colors.white, fontSize: 32),
+            )),
+        Container(
+            width: 50,
+            height: 50,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: Colors.black54,
+                  blurRadius: 15.0,
+                  offset: Offset(0.0, 0.75))
+            ], shape: BoxShape.circle, color: Colors.red),
+            child: Text(
+              selection[1],
+              style: TextStyle(color: Colors.white, fontSize: 32),
+            )),
+        Container(
+            width: 50,
+            height: 50,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: Colors.black54,
+                  blurRadius: 15.0,
+                  offset: Offset(0.0, 0.75))
+            ], shape: BoxShape.circle, color: Colors.red),
+            child: Text(selection[2],
+                style: TextStyle(color: Colors.white, fontSize: 32))),
+        Container(
+            width: 50,
+            height: 50,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: Colors.black54,
+                  blurRadius: 15.0,
+                  offset: Offset(0.0, 0.75))
+            ], shape: BoxShape.circle, color: Colors.red),
+            child: Text(selection[3],
+                style: TextStyle(color: Colors.white, fontSize: 32))),
+      ]));
+      print("_incorrect called at ${DateTime.now().toIso8601String()}");
+      // _history += _incorrect;
+      databaseReference.collection('rotarySelection').document().setData({
+        'expression':
+            '${selection[0]} ${selection[1]} ${selection[2]} ${selection[3]}'
+      });
+      return _incorrect;
     }
   }
 
-  final StreamController _dividerController = StreamController<int>();
+  void _panHandler(DragUpdateDetails d) {
+    /// Pan location on the wheel
+    bool onTop = d.localPosition.dy <= radius;
+    bool onLeftSide = d.localPosition.dx <= radius;
+    bool onRightSide = !onLeftSide;
+    bool onBottom = !onTop;
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    _dividerController.close();
-    print("Divider Stream Controller closed");
+    /// Pan movements
+    bool panUp = d.delta.dy <= 0.0;
+    bool panLeft = d.delta.dx <= 0.0;
+    bool panRight = !panLeft;
+    bool panDown = !panUp;
+
+    /// Absoulte change on axis
+    double yChange = d.delta.dy.abs();
+    double xChange = d.delta.dx.abs();
+
+    /// Directional change on wheel
+    double verticalRotation = (onRightSide && panDown) || (onLeftSide && panUp)
+        ? yChange
+        : yChange * -1;
+
+    double horizontalRotation =
+        (onTop && panRight) || (onBottom && panLeft) ? xChange : xChange * -1;
+
+    // Total computed change
+    double rotationalChange = verticalRotation + horizontalRotation;
+
+    setState(() {
+      display = "";
+      _movement += rotationalChange;
+      _rotationAngle = (radians(_movement) * 0.48);
+    });
   }
 
-  int labels(dynamic selection) {
-    Map<int, int> numbers = {
-      1: 8,
-      2: 9,
-      3: 0,
-      4: 1,
-      5: 2,
-      6: 3,
-      7: 4,
-      8: 5,
-      9: 6,
-      10: 7
-    };
+  void _panEnd(DragEndDetails d) {
+    _selection += _movementdx();
+    setState(() {
+      _movement = 0;
+      _rotationAngle = 0.2;
+    });
+    _checkList(_selection, 24);
+  }
 
-    return numbers[selection];
+  String _movementdx() {
+    if (_movement < 150 && _movement > 20) {
+      return "1";
+    } else if (_movement >= 150 && _movement < 220) {
+      return "2";
+    } else if (_movement >= 220 && _movement < 260) {
+      return "3";
+    } else if (_movement >= 260 && _movement < 300) {
+      return "4";
+    } else if (_movement >= 300 && _movement < 410) {
+      return "5";
+    } else if (_movement >= 410 && _movement < 460) {
+      return "6";
+    } else if (_movement >= 460 && _movement < 500) {
+      return "7";
+    } else if (_movement >= 500 && _movement < 600) {
+      return "8";
+    } else if (_movement >= 600 && _movement < 700) {
+      return "9";
+    } else if (_movement >= 700 && _movement < 800) {
+      return "0";
+    }
+    return null;
   }
 
   // ----------------------------- Widget Tree ----------------------------- //
@@ -269,6 +409,7 @@ class _RotaryState extends State<Rotary> {
                 setState(() {
                   _selection = "";
                   results = "";
+                  // _history = [];
                   display = ""; // Also clear displayed results!
                   print(_selection);
                 });
@@ -289,7 +430,7 @@ class _RotaryState extends State<Rotary> {
                   // Open history page and pass the results variable
                   Navigator.of(context)
                       .push(MaterialPageRoute(builder: (context) {
-                    return History(_displaySelection());
+                    return History(); //------------- Use Firestore -------------//
                   }));
                 },
               ),
@@ -307,50 +448,52 @@ class _RotaryState extends State<Rotary> {
               ),
               Labels(),
               Positioned(
-                top: 35,
-                left: 25,
-                child: Transform(
-                  // angle: 90,
-                  alignment: Alignment.center,
-                  transform: Matrix4.rotationY(3),
-                  child: SpinningWheel(
-                    Image.asset("assets/rotaryWheel.png"),
-                    width: 300,
-                    height: 300,
-                    dividers: 10,
-                    initialSpinAngle: 0,
-                    spinResistance: 0.8,
-                    onEnd: _dividerController.add,
-                    onUpdate: _dividerController.add,
-                  ),
-                ),
-              ),
+                  top: 45,
+                  left: 55,
+                  child: Transform.rotate(
+                      angle: _rotationAngle,
+                      child: GestureDetector(
+                          onPanUpdate: _panHandler,
+                          onPanEnd: _panEnd,
+                          child: Container(
+                              height: radius * 2,
+                              width: radius * 2,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                      image: AssetImage(
+                                          "assets/rotaryWheel.png"))))))),
               Positioned(
-                  top: 365,
-                  child: StreamBuilder(
-                    stream: _dividerController.stream,
-                    builder: (context, snapshot) => snapshot.hasData
-                        ? MaterialButton(
-                            child: Text("${labels(snapshot.data)}",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 32)),
-                            onPressed: () => {
-                                  _selection +=
-                                      labels(snapshot.data).toString(),
-                                  _checkList(_selection, 24)
-                                })
-                        : Container(),
-                  )),
+                  top: 60,
+                  left: 160,
+                  child: Transform(
+                      transform: Matrix4.rotationZ(pi * 0.1),
+                      child: Container(
+                          child: CustomPaint(painter: StopPosition())))),
               Positioned(
                 top: 500,
                 child: (display.isNotEmpty)
                     ? Row(
-                        children: (_displaySelection() != null)
-                            ? _displaySelection()
-                            : [Container()],
+                        children: _displaySelection() ?? [Container()],
                       )
-                    : Container(),
-              )
+                    : Container(
+                        child: Text(
+                        "${_movement.round()}",
+                        style: TextStyle(color: Colors.white, fontSize: 32),
+                      )),
+              ),
+              SizedBox(
+                height: 200,
+              ),
+              Positioned(
+                  top: 550,
+                  child: Container(
+                      child: Text(
+                    (_movementdx() != null)
+                        ? "${_movementdx()}"
+                        : "Rotate the wheel",
+                    style: TextStyle(color: Colors.white, fontSize: 24),
+                  )))
             ],
           ),
         ));
