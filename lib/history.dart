@@ -19,6 +19,7 @@ class _HistoryState extends State<History> {
   @override
   void initState() {
     // TODO: implement initState
+    getData();
     super.initState();
   }
 

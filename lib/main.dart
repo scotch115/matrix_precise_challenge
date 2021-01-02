@@ -51,6 +51,8 @@ class _RotaryState extends State<Rotary> {
   double radius = 130;
   double _movement = 0;
   double _rotationAngle = 0.2;
+  List<Widget> result = [];
+  List<Widget> _incorrect = [];
 
   double radians(double angle) {
     return angle * pi / 180;
@@ -66,7 +68,7 @@ class _RotaryState extends State<Rotary> {
     if (digits.length == 0) {
       // If the current number being tested (sum) + the last number equals the target number, add the expression to results
       if (sum + previous == target) {
-        print("$expr = $target");
+        // print("$expr = $target");
         // remove repetitive recursive checks from computed results
         if (!expr.contains("24")) {
           // Only save one version (duplicates due to associative property sometimes occur)
@@ -98,12 +100,6 @@ class _RotaryState extends State<Rotary> {
             expr + " - " + current.toString());
       }
     }
-
-    if (counter == incorrect.length) {
-      print("green bubbles");
-    } else {
-      print("red bubbles");
-    }
   }
 
   _checkList(String selection, double target) {
@@ -124,8 +120,8 @@ class _RotaryState extends State<Rotary> {
            */
           check(0.0, double.parse(pos), selection.substring(0, i), target, pos);
         });
-        _displaySelection();
       }
+      _displaySelection();
 
       // After algorithm has been processed, clear the storage variable and reload scaffold
       setState(() {
@@ -137,15 +133,14 @@ class _RotaryState extends State<Rotary> {
   }
 
   // ignore: missing_return
-  List<Widget> _displaySelection() {
-    List<Widget> result = [];
-    List<Widget> _incorrect = [];
+  void _displaySelection() {
     String selection = _selection;
 
     if (results.isNotEmpty) {
+      display = "";
       /* In theory, the following code would be used to return the UI-specific results (red if wrong and colorful if correct) */
       for (int i = 0; i < results.length; i++) {
-        if (results[i] != " ") {
+        if (results[i] != " " && results.length > 20) {
           var str = results[i].split('.');
           str[0].runes.forEach((element) {
             if (String.fromCharCode(element) != "0") {
@@ -161,93 +156,110 @@ class _RotaryState extends State<Rotary> {
           });
         }
       }
-      result.add(Row(children: [
-        Container(
-            width: 50,
-            height: 50,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.black54,
-                  blurRadius: 15.0,
-                  offset: Offset(0.0, 0.75))
-            ], shape: BoxShape.circle, color: Color.fromRGBO(125, 202, 160, 1)),
-            child: Text(
-              (display != null) ? display[0] : "null",
-              style: TextStyle(color: Colors.white, fontSize: 32),
-            )),
-        Text(
-          _operator[0],
-          style: TextStyle(color: Colors.white, fontSize: 32),
-        ),
-        Container(
-            width: 50,
-            height: 50,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.black54,
-                  blurRadius: 15.0,
-                  offset: Offset(0.0, 0.75))
-            ], shape: BoxShape.circle, color: Color.fromRGBO(125, 202, 160, 1)),
-            child: Text(
-              display[1],
-              style: TextStyle(color: Colors.white, fontSize: 32),
-            )),
-        Text(
-          _operator[1],
-          style: TextStyle(color: Colors.white, fontSize: 32),
-        ),
-        Container(
-            width: 50,
-            height: 50,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.black54,
-                  blurRadius: 15.0,
-                  offset: Offset(0.0, 0.75))
-            ], shape: BoxShape.circle, color: Color.fromRGBO(96, 136, 175, 1)),
-            child: Text(display[2],
-                style: TextStyle(color: Colors.white, fontSize: 32))),
-        Text(
-          _operator[2],
-          style: TextStyle(color: Colors.white, fontSize: 32),
-        ),
-        Container(
-            width: 50,
-            height: 50,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.black54,
-                  blurRadius: 15.0,
-                  offset: Offset(0.0, 0.75))
-            ], shape: BoxShape.circle, color: Color.fromRGBO(96, 136, 175, 1)),
-            child: Text(display[3],
-                style: TextStyle(color: Colors.white, fontSize: 32))),
-        Text(
-          "=",
-          style: TextStyle(color: Colors.white, fontSize: 32),
-        ),
-        Container(
-            width: 50,
-            height: 50,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.black54,
-                  blurRadius: 15.0,
-                  offset: Offset(0.0, 0.75))
-            ], shape: BoxShape.circle, color: Color.fromRGBO(96, 136, 175, 1)),
-            child:
-                Text("24", style: TextStyle(color: Colors.white, fontSize: 32)))
-      ]));
-      databaseReference.collection('rotarySelection').document().setData({
-        'expression':
-            '${display[0]} ${_operator[0]} ${display[1]} ${_operator[1]} ${display[2]} ${_operator[2]} ${display[3]} = 24'
-      });
-      return result;
+      if (display[3] != '=') {
+        // Reduce garbage data accidentally generated by the check() algorithm
+        result.add(Row(children: [
+          Container(
+              width: 50,
+              height: 50,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                        color: Colors.black54,
+                        blurRadius: 15.0,
+                        offset: Offset(0.0, 0.75))
+                  ],
+                  shape: BoxShape.circle,
+                  color: Color.fromRGBO(125, 202, 160, 1)),
+              child: Text(
+                (display != null) ? display[0] : "null",
+                style: TextStyle(color: Colors.white, fontSize: 32),
+              )),
+          Text(
+            _operator[0],
+            style: TextStyle(color: Colors.white, fontSize: 32),
+          ),
+          Container(
+              width: 50,
+              height: 50,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                        color: Colors.black54,
+                        blurRadius: 15.0,
+                        offset: Offset(0.0, 0.75))
+                  ],
+                  shape: BoxShape.circle,
+                  color: Color.fromRGBO(125, 202, 160, 1)),
+              child: Text(
+                display[1],
+                style: TextStyle(color: Colors.white, fontSize: 32),
+              )),
+          Text(
+            _operator[1],
+            style: TextStyle(color: Colors.white, fontSize: 32),
+          ),
+          Container(
+              width: 50,
+              height: 50,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                        color: Colors.black54,
+                        blurRadius: 15.0,
+                        offset: Offset(0.0, 0.75))
+                  ],
+                  shape: BoxShape.circle,
+                  color: Color.fromRGBO(96, 136, 175, 1)),
+              child: Text(display[2],
+                  style: TextStyle(color: Colors.white, fontSize: 32))),
+          Text(
+            _operator[2],
+            style: TextStyle(color: Colors.white, fontSize: 32),
+          ),
+          Container(
+              width: 50,
+              height: 50,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                        color: Colors.black54,
+                        blurRadius: 15.0,
+                        offset: Offset(0.0, 0.75))
+                  ],
+                  shape: BoxShape.circle,
+                  color: Color.fromRGBO(96, 136, 175, 1)),
+              child: Text(display[3],
+                  style: TextStyle(color: Colors.white, fontSize: 32))),
+          Text(
+            "=",
+            style: TextStyle(color: Colors.white, fontSize: 32),
+          ),
+          Container(
+              width: 50,
+              height: 50,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                        color: Colors.black54,
+                        blurRadius: 15.0,
+                        offset: Offset(0.0, 0.75))
+                  ],
+                  shape: BoxShape.circle,
+                  color: Color.fromRGBO(96, 136, 175, 1)),
+              child: Text("24",
+                  style: TextStyle(color: Colors.white, fontSize: 32)))
+        ]));
+        databaseReference.collection('rotarySelection').document().setData({
+          'expression':
+              '${display[0]} ${_operator[0]} ${display[1]} ${_operator[1]} ${display[2]} ${_operator[2]} ${display[3]} = 24'
+        });
+      }
     } else if (_incorrect.isNotEmpty) {
       _incorrect.add(Row(children: [
         Container(
@@ -309,7 +321,6 @@ class _RotaryState extends State<Rotary> {
         'expression':
             '${selection[0]} ${selection[1]} ${selection[2]} ${selection[3]}'
       });
-      return _incorrect;
     }
   }
 
@@ -474,7 +485,8 @@ class _RotaryState extends State<Rotary> {
                 top: 500,
                 child: (display.isNotEmpty)
                     ? Row(
-                        children: _displaySelection() ?? [Container()],
+                        // children: _displaySelection() ?? [Container()], // This didn't work becuase the second call to _displaySelection was also submitting another item to Firestore
+                        children: (display.length > 10) ? result : _incorrect,
                       )
                     : Container(
                         child: Text(

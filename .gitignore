@@ -45,4 +45,4 @@ app.*.map.json
 
 
 # Google Firebase plist
-**/ios/Runner/GoogleService-Info.plist
+ios/Runner/GoogleService-Info.plist
