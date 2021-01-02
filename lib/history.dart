@@ -26,166 +26,181 @@ class _HistoryState extends State<History> {
       snapshot.documents.forEach((element) {
         String input =
             element.data.values.toString().replaceAll(new RegExp(r"\s+"), "");
-        print(input);
         if (input.length > 10) {
-          results.add(Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                    width: 50,
-                    height: 50,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
-                              color: Colors.black54,
-                              blurRadius: 15.0,
-                              offset: Offset(0.0, 0.75))
-                        ],
-                        shape: BoxShape.circle,
-                        color: Color.fromRGBO(125, 202, 160, 1)),
-                    child: Text(
-                      (input != null) ? input[1] : "null",
-                      style: TextStyle(color: Colors.white, fontSize: 32),
-                    )),
-                Text(
-                  input[2],
-                  style: TextStyle(color: Colors.white, fontSize: 32),
-                ),
-                Container(
-                    width: 50,
-                    height: 50,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
-                              color: Colors.black54,
-                              blurRadius: 15.0,
-                              offset: Offset(0.0, 0.75))
-                        ],
-                        shape: BoxShape.circle,
-                        color: Color.fromRGBO(125, 202, 160, 1)),
-                    child: Text(
-                      input[3],
-                      style: TextStyle(color: Colors.white, fontSize: 32),
-                    )),
-                Text(
-                  input[4],
-                  style: TextStyle(color: Colors.white, fontSize: 32),
-                ),
-                Container(
-                    width: 50,
-                    height: 50,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
-                              color: Colors.black54,
-                              blurRadius: 15.0,
-                              offset: Offset(0.0, 0.75))
-                        ],
-                        shape: BoxShape.circle,
-                        color: Color.fromRGBO(96, 136, 175, 1)),
-                    child: Text(input[5],
-                        style: TextStyle(color: Colors.white, fontSize: 32))),
-                Text(
-                  input[6],
-                  style: TextStyle(color: Colors.white, fontSize: 32),
-                ),
-                Container(
-                    width: 50,
-                    height: 50,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
-                              color: Colors.black54,
-                              blurRadius: 15.0,
-                              offset: Offset(0.0, 0.75))
-                        ],
-                        shape: BoxShape.circle,
-                        color: Color.fromRGBO(96, 136, 175, 1)),
-                    child: Text(input[7],
-                        style: TextStyle(color: Colors.white, fontSize: 32))),
-                Text(
-                  "=",
-                  style: TextStyle(color: Colors.white, fontSize: 32),
-                ),
-                Container(
-                    width: 50,
-                    height: 50,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
-                              color: Colors.black54,
-                              blurRadius: 15.0,
-                              offset: Offset(0.0, 0.75))
-                        ],
-                        shape: BoxShape.circle,
-                        color: Color.fromRGBO(96, 136, 175, 1)),
-                    child: Text("24",
-                        style: TextStyle(color: Colors.white, fontSize: 32)))
-              ]));
+          results.add(Column(children: [
+            SizedBox(height: 30),
+            Container(
+              child: (input.length > 10)
+                  ? Text(
+                      "🎉",
+                      style: TextStyle(fontSize: 45),
+                    )
+                  : Text(
+                      "🗑",
+                      style: TextStyle(fontSize: 45),
+                    ),
+            ),
+            Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                      width: 50,
+                      height: 50,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          boxShadow: <BoxShadow>[
+                            BoxShadow(
+                                color: Colors.black54,
+                                blurRadius: 15.0,
+                                offset: Offset(0.0, 0.75))
+                          ],
+                          shape: BoxShape.circle,
+                          color: Color.fromRGBO(125, 202, 160, 1)),
+                      child: Text(
+                        (input != null) ? input[1] : "null",
+                        style: TextStyle(color: Colors.white, fontSize: 32),
+                      )),
+                  Text(
+                    input[2],
+                    style: TextStyle(color: Colors.white, fontSize: 32),
+                  ),
+                  Container(
+                      width: 50,
+                      height: 50,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          boxShadow: <BoxShadow>[
+                            BoxShadow(
+                                color: Colors.black54,
+                                blurRadius: 15.0,
+                                offset: Offset(0.0, 0.75))
+                          ],
+                          shape: BoxShape.circle,
+                          color: Color.fromRGBO(125, 202, 160, 1)),
+                      child: Text(
+                        input[3],
+                        style: TextStyle(color: Colors.white, fontSize: 32),
+                      )),
+                  Text(
+                    input[4],
+                    style: TextStyle(color: Colors.white, fontSize: 32),
+                  ),
+                  Container(
+                      width: 50,
+                      height: 50,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          boxShadow: <BoxShadow>[
+                            BoxShadow(
+                                color: Colors.black54,
+                                blurRadius: 15.0,
+                                offset: Offset(0.0, 0.75))
+                          ],
+                          shape: BoxShape.circle,
+                          color: Color.fromRGBO(96, 136, 175, 1)),
+                      child: Text(input[5],
+                          style: TextStyle(color: Colors.white, fontSize: 32))),
+                  Text(
+                    input[6],
+                    style: TextStyle(color: Colors.white, fontSize: 32),
+                  ),
+                  Container(
+                      width: 50,
+                      height: 50,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          boxShadow: <BoxShadow>[
+                            BoxShadow(
+                                color: Colors.black54,
+                                blurRadius: 15.0,
+                                offset: Offset(0.0, 0.75))
+                          ],
+                          shape: BoxShape.circle,
+                          color: Color.fromRGBO(96, 136, 175, 1)),
+                      child: Text(input[7],
+                          style: TextStyle(color: Colors.white, fontSize: 32)))
+                ]),
+            Container(
+              child: Text("______________________",
+                  style: TextStyle(color: Colors.white, fontSize: 32)),
+            ),
+            Container(
+                child: Text("24",
+                    style: TextStyle(color: Colors.white, fontSize: 32)))
+          ]));
         } else {
-          results.add(Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Container(
-                    width: 50,
-                    height: 50,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(boxShadow: <BoxShadow>[
-                      BoxShadow(
-                          color: Colors.black54,
-                          blurRadius: 15.0,
-                          offset: Offset(0.0, 0.75))
-                    ], shape: BoxShape.circle, color: Colors.red),
-                    child: Text(
-                      input[1],
-                      style: TextStyle(color: Colors.white, fontSize: 32),
-                    )),
-                Container(
-                    width: 50,
-                    height: 50,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(boxShadow: <BoxShadow>[
-                      BoxShadow(
-                          color: Colors.black54,
-                          blurRadius: 15.0,
-                          offset: Offset(0.0, 0.75))
-                    ], shape: BoxShape.circle, color: Colors.red),
-                    child: Text(
-                      input[2],
-                      style: TextStyle(color: Colors.white, fontSize: 32),
-                    )),
-                Container(
-                    width: 50,
-                    height: 50,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(boxShadow: <BoxShadow>[
-                      BoxShadow(
-                          color: Colors.black54,
-                          blurRadius: 15.0,
-                          offset: Offset(0.0, 0.75))
-                    ], shape: BoxShape.circle, color: Colors.red),
-                    child: Text(input[3],
-                        style: TextStyle(color: Colors.white, fontSize: 32))),
-                Container(
-                    width: 50,
-                    height: 50,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(boxShadow: <BoxShadow>[
-                      BoxShadow(
-                          color: Colors.black54,
-                          blurRadius: 15.0,
-                          offset: Offset(0.0, 0.75))
-                    ], shape: BoxShape.circle, color: Colors.red),
-                    child: Text(input[4],
-                        style: TextStyle(color: Colors.white, fontSize: 32))),
-              ]));
+          results.add(Column(children: [
+            SizedBox(height: 30),
+            Container(
+              child: (input.length > 10)
+                  ? Text(
+                      "🎉",
+                      style: TextStyle(fontSize: 45),
+                    )
+                  : Text(
+                      "🗑",
+                      style: TextStyle(fontSize: 45),
+                    ),
+            ),
+            Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Container(
+                      width: 50,
+                      height: 50,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(boxShadow: <BoxShadow>[
+                        BoxShadow(
+                            color: Colors.black54,
+                            blurRadius: 15.0,
+                            offset: Offset(0.0, 0.75))
+                      ], shape: BoxShape.circle, color: Colors.red),
+                      child: Text(
+                        input[1],
+                        style: TextStyle(color: Colors.white, fontSize: 32),
+                      )),
+                  Container(
+                      width: 50,
+                      height: 50,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(boxShadow: <BoxShadow>[
+                        BoxShadow(
+                            color: Colors.black54,
+                            blurRadius: 15.0,
+                            offset: Offset(0.0, 0.75))
+                      ], shape: BoxShape.circle, color: Colors.red),
+                      child: Text(
+                        input[2],
+                        style: TextStyle(color: Colors.white, fontSize: 32),
+                      )),
+                  Container(
+                      width: 50,
+                      height: 50,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(boxShadow: <BoxShadow>[
+                        BoxShadow(
+                            color: Colors.black54,
+                            blurRadius: 15.0,
+                            offset: Offset(0.0, 0.75))
+                      ], shape: BoxShape.circle, color: Colors.red),
+                      child: Text(input[3],
+                          style: TextStyle(color: Colors.white, fontSize: 32))),
+                  Container(
+                      width: 50,
+                      height: 50,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(boxShadow: <BoxShadow>[
+                        BoxShadow(
+                            color: Colors.black54,
+                            blurRadius: 15.0,
+                            offset: Offset(0.0, 0.75))
+                      ], shape: BoxShape.circle, color: Colors.red),
+                      child: Text(input[4],
+                          style: TextStyle(color: Colors.white, fontSize: 32))),
+                ])
+          ]));
         }
       });
     });
@@ -232,25 +247,27 @@ class _HistoryState extends State<History> {
                         value: snapshot.connectionState.index.toDouble(),
                       );
                     }
-                    return Center(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Display history in chronological order
-                          // Need to implement calls to Firestore, and method to filter passing and failing expressions to properly display each
-                          Center(
-                              child: Text(
-                            "History",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 32,
-                                color: Colors.white),
-                          )),
-                          Column(children: results)
-                        ],
-                      ),
-                    );
+                    return ListView(children: [
+                      Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Display history in chronological order
+                            // Need to implement calls to Firestore, and method to filter passing and failing expressions to properly display each
+                            Center(
+                                child: Text(
+                              "History",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 32,
+                                  color: Colors.white),
+                            )),
+                            Column(children: results)
+                          ],
+                        ),
+                      )
+                    ]);
                   },
                 ))));
   }
