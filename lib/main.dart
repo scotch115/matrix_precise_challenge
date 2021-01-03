@@ -440,7 +440,7 @@ class _RotaryState extends State<Rotary> {
                 elevation: 0,
                 backgroundColor: Color.fromRGBO(138, 131, 222, 1),
                 onPressed: () {
-                  // Open history page and pass the results variable
+                  // Open history page
                   Navigator.push(
                       context,
                       new MaterialPageRoute(
@@ -509,10 +509,12 @@ class _RotaryState extends State<Rotary> {
                         children: result,
                       )
                     : Container(
-                        child: Text(
-                        "${_movement.round()}",
-                        style: TextStyle(color: Colors.white, fontSize: 32),
-                      )),
+                        // Used for testing rotation angles
+                        // child: Text(
+                        // "${_movement.round()}",
+                        // style: TextStyle(color: Colors.white, fontSize: 32),
+                        // )
+                        ),
               ),
               SizedBox(
                 height: 200,

@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'main.dart';
+
 class History extends StatefulWidget {
   @override
   _HistoryState createState() => _HistoryState();
@@ -14,11 +16,14 @@ class _HistoryState extends State<History> {
   @override
   void initState() {
     super.initState();
-    getData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _getData();
+      setState(() {});
+    });
   }
   // --------------------------- Class Variables --------------------------- //
 
-  Future<void> getData() async {
+  Future<void> _getData() async {
     databaseReference
         .collection('rotarySelection')
         .getDocuments()
@@ -26,6 +31,7 @@ class _HistoryState extends State<History> {
       snapshot.documents.forEach((element) {
         String input =
             element.data.values.toString().replaceAll(new RegExp(r"\s+"), "");
+        print(input);
         if (input.length > 10) {
           results.add(Column(children: [
             SizedBox(height: 30),
@@ -228,13 +234,17 @@ class _HistoryState extends State<History> {
                   leading: Container(
                       padding: EdgeInsets.only(left: 10),
                       child: FloatingActionButton(
-                        child: Text(
-                          "X",
-                          style: TextStyle(fontSize: 32),
-                        ),
-                        backgroundColor: Color.fromRGBO(138, 131, 222, 1),
-                        onPressed: () => Navigator.of(context).pop(true),
-                      )),
+                          child: Text(
+                            "X",
+                            style: TextStyle(fontSize: 32),
+                          ),
+                          backgroundColor: Color.fromRGBO(138, 131, 222, 1),
+                          onPressed: () {
+                            Navigator.pop(
+                                context,
+                                new MaterialPageRoute(
+                                    builder: (context) => new Rotary()));
+                          })),
                 ),
                 backgroundColor: Colors.transparent,
                 body: StreamBuilder(
